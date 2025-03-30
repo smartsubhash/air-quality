@@ -3,28 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey Result</title>
+    <title>Survey Result - Air Quality Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/survey_style.css') }}">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navigation -->
     <nav>
         <ul>
             <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('survey') }}">New Survey</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
-
+    
     <!-- Result Container -->
     <div class="survey-container">
-        <h2>Survey Result</h2>
-        <div class="question-container">
-            <p><span class="result-text">Your predicted air quality is:</span> <span class="predicted-value">{{ category }}</span></p>
+        <h2>Your Air Quality Result</h2>
+        
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="result-container" style="text-align: center; margin: 20px 0;">
+            <p class="result-text">Based on your responses, your local air quality is:</p>
+            <span class="predicted-value">{{ category }}</span>
+            
+            {% if category == "Very Good" %}
+                <p>Excellent! The air quality in your area is very good. Keep monitoring and maintaining these standards.</p>
+            {% elif category == "Good" %}
+                <p>Good job! The air quality in your area is good, but there's always room for improvement.</p>
+            {% elif category == "Average" %}
+                <p>The air quality in your area is average. Consider ways to reduce pollution in your community.</p>
+            {% elif category == "Poor" %}
+                <p>The air quality in your area needs attention. Consider reducing outdoor activities on high pollution days.</p>
+            {% elif category == "Very Poor" %}
+                <p>Your area has significant air quality concerns. Please take precautions and minimize exposure when possible.</p>
+            {% endif %}
+            
+            <!-- Air Quality Chart -->
+            <div style="width: 80%; margin: 30px auto;">
+                <canvas id="airQualityChart"></canvas>
+            </div>
+            
             <div class="result-actions">
-                <a href="{{ url_for('home') }}" class="btn">Back to Home</a>
                 <a href="{{ url_for('survey') }}" class="btn">Take Another Survey</a>
+                <a href="{{ url_for('home') }}" class="btn">Back to Home</a>
             </div>
         </div>
     </div>
+    
+    <script>
+        // Create a simple chart to visualize the air quality result
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('airQualityChart').getContext('2d');
+            
+            // Define the categories and their values (for demonstration)
+            const categories = ['Very Poor', 'Poor', 'Average', 'Good', 'Very Good'];
+            
+            // Map the result to values (1 for the current category, 0.3 for others)
+            const values = categories.map(cat => cat === '{{ category }}' ? 1 : 0.3);
+            
+            // Define colors for each category
+            const backgroundColors = [
+                'rgba(255, 99, 132, 0.7)',  // Very Poor - Red
+                'rgba(255, 159, 64, 0.7)',  // Poor - Orange
+                'rgba(255, 205, 86, 0.7)',  // Average - Yellow
+                'rgba(75, 192, 192, 0.7)',  // Good - Teal
+                'rgba(54, 162, 235, 0.7)'   // Very Good - Blue
+            ];
+            
+            // Create the chart
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Air Quality Rating',
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: {
+                                display: true,
+                                text: 'Rating'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Your Air Quality Assessment',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

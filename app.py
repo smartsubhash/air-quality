@@ -25,6 +25,9 @@ def init_db():
     conn.close()
     app.logger.info("Database initialized successfully")
 
+# Initialize the database at startup
+init_db()
+
 # Load the dataset for reference
 try:
     data = pd.read_csv('air_quality.csv')

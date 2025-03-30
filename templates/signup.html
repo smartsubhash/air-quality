@@ -3,47 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>Sign Up - Air Quality Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <!-- Main Content Wrapper -->
     <div class="main-wrapper">
         <div class="signup-container">
-            <h2>Sign Up</h2>
+            <h2>Create an Account</h2>
             
+            <!-- Display flash messages -->
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <div class="flash-message">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
                 {% endif %}
             {% endwith %}
             
-            <form action="{{ url_for('signup') }}" method="POST">
+            <form action="{{ url_for('signup') }}" method="post">
                 <div class="form-group">
-                    <label for="username">Username:</label>
+                    <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="email">Email:</label>
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="password">Password:</label>
+                    <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-
-                <button type="submit">Sign Up</button>
-
-                <div class="login-link">
-                    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
-                </div>
+                
+                <button type="submit">Create Account</button>
             </form>
+            
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+            </div>
         </div>
     </div>
 </body>

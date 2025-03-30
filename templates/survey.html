@@ -3,57 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey</title>
+    <title>Air Quality Survey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/survey_style.css') }}">
 </head>
 <body>
+    <!-- Navigation -->
     <nav>
         <ul>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
-
+    
+    <!-- Survey Container -->
     <div class="survey-container">
+        <h2>Air Quality Survey - Question {{ current_question + 1 }}/11</h2>
+        
+        <!-- Display flash messages -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div class="flash-message">{{ messages[0] }}</div>
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <h2>{{ question['question'] }}</h2>
         
-        <!-- Survey Form -->
-        <form method="POST">
-            <div class="question-container">
-                <label for="answer">Your answer (1-10):</label><br>
-                <!-- Slider input for answers -->
-                <input type="range" name="{{ question['name'] }}" min="1" max="10" value="{{ session.get('answer_' ~ current_question, 5) }}" step="1" id="answer" class="slider">
-                <p id="answer-text">Value: {{ session.get('answer_' ~ current_question, 5) }}</p>
-            </div>
-
-            <div class="navigation-buttons">
-                <!-- Previous and Next buttons -->
-                <button type="submit" name="previous" value="previous" {% if previous_button_disabled %}disabled{% endif %}>Previous</button>
-                <button type="submit" name="next" value="next">{{ next_button_text }}</button>
-            </div>
-        </form>
+        <div class="question-container">
+            <p>{{ question.question }}</p>
+            <form method="post">
+                <input type="range" min="0" max="10" value="5" class="slider" id="answer" name="{{ question.name }}">
+                <p id="answer-text">Value: 5 (Medium)</p>
+                
+                <div class="navigation-buttons">
+                    <button type="submit" name="previous" {% if previous_button_disabled %}disabled{% endif %}>Previous</button>
+                    <button type="submit">{{ next_button_text }}</button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <script>
-        // Update the slider value display
-        const slider = document.getElementById('answer');
-        const answerText = document.getElementById('answer-text');
-        
-        // Set the initial value of the slider text
-        answerText.textContent = `Value: ${slider.value}`;
-
-        // Update the slider text when the slider value changes
-        slider.addEventListener('input', function() {
-            answerText.textContent = `Value: ${slider.value}`;
-        });
-    </script>
-
+    
+    <!-- JavaScript for dynamic elements -->
     <script src="{{ url_for('static', filename='js/survey.js') }}"></script>
 </body>
 </html>
