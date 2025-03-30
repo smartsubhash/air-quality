@@ -2,6 +2,10 @@
 
 An interactive web application for air quality monitoring, surveys, and data visualization.
 
+## Detailed Documentation
+
+For comprehensive project information, view the [Detailed Project Report](PROJECT_REPORT.md).
+
 ## Features
 
 - **User Authentication**: Secure login and signup system
