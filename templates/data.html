@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Data Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/data_style.css') }}">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header>
+        <div class="logo">AirQuality</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="#" class="active">Data</a></li>
+                <li><a href="{{ url_for('survey') }}">Survey</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <section class="page-header">
+            <h1>Air Quality Data Visualization</h1>
+            <p>Explore the air quality data through different visual representations</p>
+        </section>
+        
+        <!-- Dashboard Layout -->
+        <div class="dashboard-container">
+            <!-- Line Chart -->
+            <div class="chart-card">
+                <h2>Air Pollutants Over Time</h2>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <p class="chart-description">This graph shows the variation of CO, Benzene, and NOx levels over time.</p>
+            </div>
+            
+            <!-- Pie Chart -->
+            <div class="chart-card">
+                <h2>Air Quality Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <p class="chart-description">Distribution of different air quality categories in the dataset.</p>
+            </div>
+            
+            <!-- Bar Chart -->
+            <div class="chart-card">
+                <h2>Average Pollutant Levels</h2>
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <p class="chart-description">Average concentration of different pollutants in the atmosphere.</p>
+            </div>
+            
+            <!-- Polar Area Chart -->
+            <div class="chart-card">
+                <h2>Pollutant Comparison</h2>
+                <div class="chart-container">
+                    <canvas id="polarChart"></canvas>
+                </div>
+                <p class="chart-description">Comparing the concentration of different pollutants in the most recent measurement.</p>
+            </div>
+        </div>
+        
+        <!-- Raw Data Table -->
+        <section class="data-table-section">
+            <h2>Raw Air Quality Data</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>CO(GT)</th>
+                            <th>C6H6(GT)</th>
+                            <th>NOx(GT)</th>
+                            <th>NO2(GT)</th>
+                            <th>T</th>
+                            <th>RH</th>
+                            <th>Air Quality</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in raw_data %}
+                        <tr>
+                            <td>{{ row['Date'] }}</td>
+                            <td>{{ row['Time'] }}</td>
+                            <td>{{ row['CO(GT)'] }}</td>
+                            <td>{{ row['C6H6(GT)'] }}</td>
+                            <td>{{ row['NOx(GT)'] }}</td>
+                            <td>{{ row['NO2(GT)'] }}</td>
+                            <td>{{ row['T'] }}</td>
+                            <td>{{ row['RH'] }}</td>
+                            <td class="air-quality {{ row['Air Quality'] | replace(' ', '-') | lower }}">{{ row['Air Quality'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Air Quality Monitor. All rights reserved.</p>
+    </footer>
+    
+    <!-- JavaScript for Charts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Line Chart - Pollutants Over Time
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            const lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ time_labels | tojson }},
+                    datasets: [
+                        {
+                            label: 'CO Levels',
+                            data: {{ co_values | tojson }},
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            tension: 0.3,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Benzene Levels',
+                            data: {{ benzene_values | tojson }},
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            tension: 0.3,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'NOx Levels',
+                            data: {{ nox_values | tojson }},
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            tension: 0.3,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Pollutant Levels Over Time',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Concentration'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Pie Chart - Air Quality Distribution
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            const pieData = {
+                labels: Object.keys({{ air_quality_counts | tojson }}),
+                datasets: [{
+                    data: Object.values({{ air_quality_counts | tojson }}),
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.7)',  // Good - Teal
+                        'rgba(54, 162, 235, 0.7)',  // Very Good - Blue
+                        'rgba(255, 205, 86, 0.7)',  // Average - Yellow
+                        'rgba(255, 159, 64, 0.7)',  // Above Average - Orange
+                        'rgba(255, 99, 132, 0.7)'   // Poor - Red
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            const pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: pieData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribution of Air Quality Categories',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            
+            // Bar Chart - Average Pollutant Levels
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            const barData = {
+                labels: Object.keys({{ avg_pollutants | tojson }}),
+                datasets: [{
+                    label: 'Average Concentration',
+                    data: Object.values({{ avg_pollutants | tojson }}),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            const barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: barData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Concentration'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Average Levels of Different Pollutants',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Polar Area Chart - Most Recent Measurement
+            const polarCtx = document.getElementById('polarChart').getContext('2d');
+            // Get the most recent data
+            const mostRecent = {
+                'CO': {{ co_values[-1] | tojson }},
+                'Benzene': {{ benzene_values[-1] | tojson }},
+                'NOx': {{ nox_values[-1] | tojson }},
+                'Temperature': {{ raw_data[-1]['T'] | tojson }},
+                'Humidity': {{ raw_data[-1]['RH'] | tojson }}
+            };
+            
+            const polarData = {
+                labels: Object.keys(mostRecent),
+                datasets: [{
+                    data: Object.values(mostRecent),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            const polarChart = new Chart(polarCtx, {
+                type: 'polarArea',
+                data: polarData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Most Recent Measurement Metrics',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -30,11 +30,11 @@ init_db()
 
 # Load the dataset for reference
 try:
-    data = pd.read_csv('air_quality.csv')
-    app.logger.info(f"Dataset loaded with columns: {data.columns}")
+    air_quality_data = pd.read_csv('air_quality.csv')
+    app.logger.info(f"Dataset loaded with columns: {air_quality_data.columns}")
 except Exception as e:
     app.logger.error(f"Error loading dataset: {str(e)}")
-    data = None
+    air_quality_data = None
 
 @app.route('/', methods=['GET'])
 def home():
@@ -222,6 +222,46 @@ def survey():
     previous_button_disabled = current_question == 0
     
     return render_template('survey.html', question=question, next_button_text=next_button_text, previous_button_disabled=previous_button_disabled, current_question=current_question)
+
+@app.route('/data')
+def data_visualization():
+    # Check if user is logged in
+    if 'username' not in session:
+        flash("You must be logged in to access this page.")
+        return redirect(url_for('login'))
+    
+    # Load and prepare the air quality data for different visualizations
+    # For line chart - air quality over time
+    time_labels = air_quality_data['Time'].tolist()
+    co_values = air_quality_data['CO(GT)'].tolist()
+    benzene_values = air_quality_data['C6H6(GT)'].tolist()
+    nox_values = air_quality_data['NOx(GT)'].tolist()
+    
+    # For pie chart - distribution of air quality categories
+    air_quality_counts = air_quality_data['Air Quality'].value_counts().to_dict()
+    
+    # For bar chart - average pollutant levels
+    avg_pollutants = {
+        'CO': air_quality_data['CO(GT)'].mean(),
+        'NMHC': air_quality_data['NMHC(GT)'].mean(),
+        'Benzene': air_quality_data['C6H6(GT)'].mean(),
+        'NOx': air_quality_data['NOx(GT)'].mean(),
+        'NO2': air_quality_data['NO2(GT)'].mean()
+    }
+    
+    # Calculate correlations for heatmap
+    corr_columns = ['CO(GT)', 'NMHC(GT)', 'C6H6(GT)', 'NOx(GT)', 'NO2(GT)', 'T', 'RH']
+    corr_matrix = air_quality_data[corr_columns].corr().to_dict()
+    
+    return render_template('data.html', 
+                          time_labels=time_labels,
+                          co_values=co_values, 
+                          benzene_values=benzene_values,
+                          nox_values=nox_values,
+                          air_quality_counts=air_quality_counts,
+                          avg_pollutants=avg_pollutants,
+                          corr_matrix=corr_matrix,
+                          raw_data=air_quality_data.to_dict('records'))
 
 @app.route('/logout')
 def logout():
