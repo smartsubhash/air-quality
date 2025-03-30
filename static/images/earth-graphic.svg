@@ -1,0 +1,32 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Earth background circle -->
+  <circle cx="400" cy="300" r="200" fill="#2E86C1" />
+  
+  <!-- Continents -->
+  <path d="M300,200 Q350,150 400,180 T500,220 Q520,260 480,300 T420,380 Q380,400 320,380 T250,300 Q230,250 300,200" fill="#27AE60" />
+  <path d="M480,200 Q500,180 530,200 T580,250 Q590,280 570,300 T530,330 Q510,340 490,320 T470,280 Q460,250 480,200" fill="#27AE60" />
+  
+  <!-- Factory with pollution -->
+  <rect x="350" y="250" width="30" height="50" fill="#7F8C8D" />
+  <rect x="370" y="230" width="20" height="70" fill="#7F8C8D" />
+  <rect x="400" y="260" width="30" height="40" fill="#7F8C8D" />
+  
+  <!-- Smoke stack -->
+  <rect x="380" y="210" width="10" height="20" fill="#34495E" />
+  
+  <!-- Pollution cloud -->
+  <path d="M385,200 Q400,180 415,190 T440,180 Q460,170 450,190 T470,200 Q490,210 470,220 T480,240 Q470,250 450,240 T430,250 Q410,260 390,250 T370,230 Q360,210 385,200" fill="#7F8C8D" opacity="0.7" />
+  
+  <!-- Trees -->
+  <circle cx="300" cy="280" r="15" fill="#196F3D" />
+  <rect x="295" y="290" width="10" height="20" fill="#784212" />
+  
+  <circle cx="530" cy="270" r="15" fill="#196F3D" />
+  <rect x="525" y="280" width="10" height="20" fill="#784212" />
+  
+  <circle cx="490" cy="360" r="12" fill="#196F3D" />
+  <rect x="486" y="368" width="8" height="15" fill="#784212" />
+  
+  <!-- Text -->
+  <text x="400" y="450" font-family="Arial" font-size="24" fill="#333" text-anchor="middle">Our Planet, Our Responsibility</text>
+</svg>
